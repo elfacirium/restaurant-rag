@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.cache/
+.ollama/
+data/pdfs/*.pdf
+data/pdf_text/
+_local/
+output/
+data/kg/*_llm.*

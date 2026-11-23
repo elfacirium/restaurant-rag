@@ -1,0 +1,10 @@
+rdflib>=7.0
+pypdf>=4.0
+sentence-transformers>=3.0
+rank-bm25>=0.2.2
+numpy
+networkx
+pyvis>=0.3.2
+requests
+fastapi
+uvicorn[standard]

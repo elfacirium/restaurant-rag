@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ontology Kitchen</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%231f6f4a'/%3E%3Ctext x='16' y='22' font-size='17' text-anchor='middle' fill='white' font-family='Georgia' font-style='italic'%3EK%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #edf3ee;
+  --card: #f9fcf9;
+  --ink: #13231b;
+  --muted: #587060;
+  --rule: #cadbcf;
+  --accent: #1f6f4a;
+  --accent-soft: #d5eadd;
+  --olive: #3d7a4f;
+  --olive-soft: #e1efe5;
+  --mustard: #74a84c;
+  --mustard-soft: #e5f2da;
+  --shadow: 0 1px 0 rgba(19, 35, 27, .04), 0 12px 32px -18px rgba(19, 35, 27, .25);
+  --display: "Playfair Display", "Georgia", serif;
+  --body: "DM Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", "Consolas", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0e1712; --card: #142019; --ink: #e2eee6; --muted: #9ab2a3; --rule: #27382e;
+    --accent: #5fcf95; --accent-soft: #183a29; --olive: #8fcf86; --olive-soft: #1d3324;
+    --mustard: #b5dc78; --mustard-soft: #26391b;
+    --shadow: 0 1px 0 rgba(0,0,0,.3), 0 16px 40px -20px rgba(0,0,0,.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0e1712; --card: #142019; --ink: #e2eee6; --muted: #9ab2a3; --rule: #27382e;
+  --accent: #5fcf95; --accent-soft: #183a29; --olive: #8fcf86; --olive-soft: #1d3324;
+  --mustard: #b5dc78; --mustard-soft: #26391b;
+  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 16px 40px -20px rgba(0,0,0,.7);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.55 var(--body);
+  -webkit-font-smoothing: antialiased;
+  background-image: radial-gradient(color-mix(in srgb, var(--ink) 5%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+button, input, textarea { font: inherit; color: inherit; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 28px 64px; }
+
+/* ---------- masthead ---------- */
+.mast {
+  display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 12px 24px;
+  padding: 40px 0 22px; border-bottom: 2px solid var(--ink); position: relative;
+}
+.mast::after { content: ""; position: absolute; left: 0; right: 0; bottom: -7px; border-bottom: 1px solid var(--ink); }
+.brand h1 {
+  font: 600 clamp(38px, 6vw, 68px)/.95 var(--display); letter-spacing: -.02em; margin: 0;
+  font-variation-settings: "opsz" 144;
+}
+.brand h1 em { font-weight: 400; color: var(--accent); }
+.tag { margin: 10px 0 0; color: var(--muted); max-width: 56ch; }
+.mast-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.status {
+  display: inline-flex; align-items: center; gap: 8px; font: 12px/1 var(--mono);
+  padding: 7px 11px; border: 1px solid var(--rule); border-radius: 999px; background: var(--card);
+  text-transform: uppercase; letter-spacing: .06em; white-space: nowrap;
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mustard); animation: pulse 1.2s infinite; }
+.status.ok .dot { background: var(--olive); animation: none; }
+@keyframes pulse { 50% { opacity: .3; } }
+.theme {
+  border: 0; background: none; cursor: pointer; color: var(--muted); font: 12px var(--mono);
+  text-transform: uppercase; letter-spacing: .06em; padding: 4px 0;
+}
+.theme:hover { color: var(--ink); }
+
+/* ---------- layout ---------- */
+.layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 32px; margin-top: 34px; }
+.col-main { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+aside { min-width: 0; }
+.sticky { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 20px; }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 4px; box-shadow: var(--shadow); }
+.eyebrow {
+  font: 500 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; gap: 10px;
+}
+.eyebrow::after { content: ""; flex: 1; border-top: 1px dashed var(--rule); }
+
+/* ---------- question ---------- */
+.order { padding: 26px 28px 22px; }
+.ask { display: flex; align-items: flex-end; gap: 14px; margin-top: 14px; border-bottom: 2px solid var(--ink); }
+.ask textarea {
+  flex: 1; border: 0; background: transparent; resize: none; outline: none; padding: 6px 0 10px;
+  font: 400 clamp(22px, 3vw, 30px)/1.25 var(--display); min-height: 48px; max-height: 180px;
+}
+.ask textarea::placeholder { color: color-mix(in srgb, var(--muted) 70%, transparent); font-style: italic; }
+.go {
+  border: 0; background: var(--accent); color: #fff; padding: 10px 18px; margin-bottom: 10px; border-radius: 999px;
+  font-weight: 600; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; transition: transform .15s;
+}
+.go:hover { transform: translateY(-1px); }
+.go:disabled { opacity: .5; cursor: progress; transform: none; }
+.go kbd { font: 11px var(--mono); opacity: .8; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; }
+.switch { display: inline-flex; align-items: center; gap: 9px; cursor: pointer; font-size: 14px; color: var(--muted); user-select: none; }
+.switch input { appearance: none; width: 34px; height: 20px; border-radius: 999px; background: var(--rule); position: relative; cursor: pointer; transition: background .2s; margin: 0; }
+.switch input::after { content: ""; position: absolute; width: 14px; height: 14px; top: 3px; left: 3px; border-radius: 50%; background: var(--card); transition: left .2s; }
+.switch input:checked { background: var(--olive); }
+.switch input:checked::after { left: 17px; }
+.switch:has(input:checked) { color: var(--ink); }
+
+/* ---------- specials (empty state) ---------- */
+.specials { padding: 26px 28px 18px; }
+.specials h2 { font: italic 400 28px/1.1 var(--display); margin: 12px 0 6px; }
+.specials p { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
+.special {
+  display: flex; align-items: baseline; gap: 10px; width: 100%; text-align: left; border: 0; background: none;
+  padding: 11px 0; cursor: pointer; border-top: 1px solid color-mix(in srgb, var(--rule) 60%, transparent);
+}
+.special:first-of-type { border-top: 0; }
+.special .q { font: 400 18px/1.3 var(--display); }
+.special .lead { flex: 1; border-bottom: 2px dotted var(--rule); transform: translateY(-4px); min-width: 20px; }
+.special .cat { font: 11px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--accent); white-space: nowrap; }
+.special:hover .q { color: var(--accent); }
+
+/* ---------- answer ---------- */
+.answer { padding: 24px 28px 26px; }
+.pipeline { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 4px 0 18px; font: 12px var(--mono); color: var(--muted); }
+.step { display: inline-flex; align-items: center; gap: 7px; }
+.step i { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--rule); }
+.step.run i { border-color: var(--mustard); background: var(--mustard); animation: pulse 1s infinite; }
+.step.done i { border-color: var(--olive); background: var(--olive); }
+.step.done { color: var(--ink); }
+.step b { font-weight: 500; color: var(--muted); }
+.prose { font: 400 19px/1.6 var(--display); min-height: 1.6em; }
+.prose p { margin: 0 0 .7em; }
+.prose ul, .prose ol { margin: 0 0 .8em; padding-left: 1.2em; }
+.prose li { margin: .2em 0; padding-left: .2em; }
+.prose li::marker { color: var(--accent); }
+.prose strong { font-weight: 600; }
+.prose.writing::after { content: "▍"; color: var(--accent); animation: pulse .8s infinite; margin-left: 2px; }
+.prose .placeholder { color: var(--muted); font-style: italic; }
+.cite {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px;
+  font: 500 11px var(--mono); border-radius: 4px; border: 0; cursor: pointer; vertical-align: 3px;
+  background: var(--accent-soft); color: var(--accent); margin: 0 1px;
+}
+.cite.onto { background: var(--olive-soft); color: var(--olive); }
+.err { color: var(--accent); font: 14px var(--mono); }
+
+/* ---------- sources (receipt) ---------- */
+.receipt { padding: 22px 28px 14px; position: relative; }
+.receipt::after {
+  content: ""; position: absolute; left: -1px; right: -1px; bottom: -9px; height: 10px;
+  background: linear-gradient(-45deg, transparent 6px, var(--card) 6px) 0 0/12px 10px repeat-x,
+              linear-gradient(45deg, transparent 6px, var(--card) 6px) 0 0/12px 10px repeat-x;
+}
+.src { border-top: 1px dashed var(--rule); }
+.src:first-of-type { border-top: 0; margin-top: 10px; }
+.src > button {
+  width: 100%; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 12px; align-items: baseline;
+  background: none; border: 0; padding: 12px 0; text-align: left; cursor: pointer;
+}
+.src .n { font: 500 12px var(--mono); color: var(--accent); }
+.src.onto .n { color: var(--olive); }
+.src .t { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.src .w { display: block; font: 12px var(--mono); color: var(--muted); font-weight: 400; margin-top: 2px; }
+.src .s { font: 12px var(--mono); color: var(--muted); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.bar { width: 54px; height: 5px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--accent); }
+.src.onto .bar span { background: var(--olive); }
+.src .x { display: none; padding: 0 0 14px 42px; font-size: 14px; color: var(--muted); white-space: pre-wrap; }
+.src.open .x { display: block; }
+.src.flash { animation: flash 1.4s; }
+@keyframes flash { 0%, 40% { background: var(--mustard-soft); } 100% { background: transparent; } }
+.tagpill { font: 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; padding: 2px 6px; border-radius: 3px; background: var(--olive-soft); color: var(--olive); margin-left: 6px; vertical-align: 2px; }
+
+.tagpill.kgpill { background: var(--mustard-soft); color: color-mix(in srgb, var(--mustard) 70%, var(--ink)); }
+.src.kgsrc .n { color: var(--mustard); }
+.src.kgsrc .bar span { background: var(--mustard); }
+
+/* ---------- knowledge graph card ---------- */
+.kgcard { padding: 22px 28px 20px; border-top: 3px solid var(--mustard); }
+.kgcard h3 { font: italic 400 24px/1.15 var(--display); margin: 12px 0 10px; }
+.kgcard h3 b { font-style: normal; font-weight: 600; color: var(--accent); }
+.chip.cond { background: transparent; border-color: color-mix(in srgb, var(--mustard) 60%, transparent); font: 12px var(--mono); }
+#kg-extra { margin-top: 10px; }
+.kgline { font-size: 15px; padding: 8px 0; border-top: 1px dashed var(--rule); }
+.kgline:first-child { border-top: 0; }
+.kgline b { font-weight: 600; }
+.kgline small { display: block; font: 12px var(--mono); color: var(--muted); }
+.kgtable-wrap { overflow-x: auto; margin-top: 12px; }
+.kgtable { width: 100%; border-collapse: collapse; font-size: 14px; }
+.kgtable th { text-align: left; font: 500 10px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--muted);
+  padding: 6px 10px 6px 0; border-bottom: 1px solid var(--ink); white-space: nowrap; }
+.kgtable td { padding: 8px 10px 8px 0; border-bottom: 1px dashed var(--rule); vertical-align: top; }
+.kgtable td.price { font: 500 13px var(--mono); white-space: nowrap; text-align: right; }
+.kgtable td.name { font-weight: 600; }
+.kgtable td small { display: block; font: 11px var(--mono); color: var(--muted); font-weight: 400; }
+.dietpill { display: inline-block; font: 10px var(--mono); padding: 1px 6px; margin: 2px 3px 0 0; border-radius: 3px;
+  background: var(--olive-soft); color: var(--olive); white-space: nowrap; }
+.kgempty { font: italic 17px var(--display); color: var(--muted); padding: 10px 0 4px; }
+.sparql { margin-top: 14px; }
+.sparql summary { cursor: pointer; font: 500 12px var(--mono); color: var(--accent); }
+.sparql pre { font: 12px/1.5 var(--mono); background: var(--paper); border: 1px solid var(--rule); border-radius: 3px;
+  padding: 12px; overflow-x: auto; white-space: pre; margin: 10px 0 0; }
+
+/* ---------- ontology aside ---------- */
+.onto-panel { padding: 22px 22px 18px; }
+.onto-panel h3 { font: italic 400 24px/1.1 var(--display); margin: 12px 0 4px; }
+.onto-panel .sub { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; }
+.chip { font: 500 13px var(--body); padding: 4px 10px; border-radius: 999px; background: var(--mustard-soft); color: var(--ink); border: 1px solid color-mix(in srgb, var(--mustard) 50%, transparent); }
+.chip.term { background: transparent; border-color: var(--rule); color: var(--muted); font-weight: 400; }
+.none { color: var(--muted); font-size: 14px; font-style: italic; }
+.graph { height: 380px; margin-top: 14px; border: 1px solid var(--rule); border-radius: 3px; background: var(--paper); position: relative; }
+.graph .empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font: italic 16px var(--display); text-align: center; padding: 20px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 10px; font: 11px var(--mono); color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 14px; height: 0; border-top: 2px solid; margin-right: 6px; vertical-align: 3px; }
+.legend .l-isa::before { border-top-style: dashed; color: var(--muted); }
+.legend .l-res::before { color: var(--accent); }
+.legend .l-prop::before { color: var(--olive); }
+.link { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font-weight: 600; margin-top: 12px; }
+.link:hover { text-decoration: underline; }
+.facts { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; padding: 16px 10px; }
+.facts div { border-left: 1px solid var(--rule); }
+.facts div:first-child { border-left: 0; }
+.facts b { display: block; font: 600 28px/1 var(--display); }
+.facts small { font: 11px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+
+/* ---------- full graph overlay ---------- */
+.overlay { position: fixed; inset: 0; background: color-mix(in srgb, var(--ink) 45%, transparent); display: none; padding: 24px; z-index: 10; }
+.overlay.open { display: grid; place-items: center; }
+.sheet { width: min(1200px, 100%); height: min(820px, 100%); display: flex; flex-direction: column; padding: 18px; }
+.sheet header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.sheet h3 { margin: 0; font: italic 400 26px var(--display); }
+.sheet .graph { flex: 1 1 0; min-height: 0; height: auto; margin: 0; overflow: hidden; }
+.close { border: 1px solid var(--rule); background: var(--card); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+
+footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--muted); font: 12px var(--mono); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sticky { position: static; }
+}
+@media (max-width: 560px) {
+  .wrap { padding: 0 16px 48px; }
+  .mast { grid-template-columns: 1fr; padding-top: 26px; }
+  .mast-side { align-items: flex-start; flex-direction: row; }
+  .order, .answer, .receipt, .specials { padding-left: 18px; padding-right: 18px; }
+  .special .cat { display: none; }
+  .src > button { grid-template-columns: 26px minmax(0, 1fr); }
+  .src .s { grid-column: 2; }
+  .src .x { padding-left: 38px; }
+}
+[hidden] { display: none !important; }
+:root[data-theme="dark"] .go { color: #0b1a12; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .go { color: #0b1a12; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div class="brand">
+      <h1>Ontology <em>Kitchen</em></h1>
+      <p class="tag">Ask about menus, dishes, diets and dining rooms. Answers are grounded in restaurant documents and a hand-built restaurant ontology.</p>
+    </div>
+    <div class="mast-side">
+      <span class="status" id="status"><span class="dot"></span><span id="status-text">warming up</span></span>
+      <button class="theme" id="theme" type="button">◐ theme</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="col-main">
+      <section class="card order">
+        <div class="eyebrow">Your question · English or Slovak</div>
+        <form class="ask" id="ask">
+          <textarea id="q" rows="1" placeholder="Which pasta dishes are vegan?" autocomplete="off"></textarea>
+          <button class="go" id="go" type="submit">Ask <kbd>↵</kbd></button>
+        </form>
+        <div class="controls">
+          <label class="switch"><input type="checkbox" id="use-onto" checked> Use ontology</label>
+          <label class="switch"><input type="checkbox" id="use-rerank" checked> Rerank</label>
+          <label class="switch"><input type="checkbox" id="use-kg" checked> Knowledge graph (SPARQL)</label>
+        </div>
+      </section>
+
+      <section class="card specials" id="specials">
+        <div class="eyebrow">Today's specials</div>
+        <h2>Try one of these</h2>
+        <p>Each question touches a different part of the ontology.</p>
+        <div id="special-list"></div>
+      </section>
+
+      <section class="card answer" id="answer-card" hidden>
+        <div class="eyebrow">Answer</div>
+        <div class="pipeline">
+          <span class="step" id="st-retrieve"><i></i>retrieval <b id="ms-retrieve"></b></span>
+          <span class="step" id="st-write"><i></i>writing <b id="ms-write"></b></span>
+          <span class="step" id="st-model"><b id="model-name"></b></span>
+        </div>
+        <div class="prose" id="answer"></div>
+      </section>
+
+      <section class="card kgcard" id="kg-card" hidden>
+        <div class="eyebrow">Knowledge graph · SPARQL</div>
+        <h3 id="kg-title"></h3>
+        <div class="chips" id="kg-conds"></div>
+        <div id="kg-extra"></div>
+        <div class="kgtable-wrap"><table class="kgtable" id="kg-table"></table></div>
+        <details class="sparql"><summary>Show the generated SPARQL query</summary><pre id="kg-sparql"></pre></details>
+      </section>
+
+      <section class="card receipt" id="sources-card" hidden>
+        <div class="eyebrow">Sources · <span id="src-count"></span></div>
+        <div id="sources"></div>
+      </section>
+    </div>
+
+    <aside>
+      <div class="sticky">
+        <section class="card onto-panel">
+          <div class="eyebrow">Ontology</div>
+          <h3>Concepts in your question</h3>
+          <p class="sub" id="onto-sub">Detected classes are highlighted in the graph below.</p>
+          <div class="chips" id="concepts"><span class="none">Ask something to see matched concepts.</span></div>
+          <div class="chips" id="terms" style="margin-top:8px"></div>
+          <div class="graph" id="graph"><div class="empty">The concept neighbourhood<br>appears here.</div></div>
+          <div class="legend"><span class="l-isa">subClassOf</span><span class="l-res">restriction</span><span class="l-prop">property</span></div>
+          <button class="link" id="open-full" type="button">View the whole ontology →</button>
+        </section>
+        <section class="card facts" id="facts">
+          <div><b id="f-classes">–</b><small>classes</small></div>
+          <div><b id="f-docs">–</b><small>documents</small></div>
+          <div><b id="f-chunks">–</b><small>chunks</small></div>
+          <div><b id="f-kg">–</b><small>graph dishes</small></div>
+        </section>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <span>GraphRAG · SPARQL over ontology + knowledge graph · hybrid search (embeddings + BM25) · RRF · cross-encoder rerank · ontology query expansion</span>
+    <span id="foot-model"></span>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="card sheet">
+    <header><h3>The restaurant ontology</h3><button class="close" id="close-full" type="button">Close</button></header>
+    <div class="graph" id="graph-full"></div>
+  </div>
+</div>
+
+<script src="/static/vis-network.min.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const SPECIALS = [
+  ["Which vegan dishes cost less than £15?", "graph · price"],
+  ["Which pasta dishes are vegan?", "graph · diets"],
+  ["What are the 3 cheapest desserts?", "graph · ranking"],
+  ["Which main courses are vegetarian?", "graph · reasoning"],
+  ["Ktoré dezerty sú lacnejšie ako 12 libier?", "graph · sk"],
+  ["How much does the tasting menu cost and is there a wine pairing?", "menus"],
+  ["Koľko hostí sa zmestí do súkromnej miestnosti?", "rooms · sk"],
+  ["How should caterers prepare halal food?", "text rag"],
+  ["What foods are typical for the Mediterranean diet?", "text rag"],
+];
+
+/* ---------- theme ---------- */
+const root = document.documentElement;
+try { const t = localStorage.getItem("theme"); if (t) root.dataset.theme = t; } catch (e) {}
+$("theme").onclick = () => {
+  const dark = root.dataset.theme ? root.dataset.theme === "dark"
+    : matchMedia("(prefers-color-scheme: dark)").matches;
+  root.dataset.theme = dark ? "light" : "dark";
+  try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {}
+  if (lastGraph) drawGraph($("graph"), lastGraph);
+  if (fullNet) drawFull();
+};
+const css = (v) => getComputedStyle(root).getPropertyValue(v).trim();
+
+/* ---------- status ---------- */
+async function poll() {
+  try {
+    const s = await (await fetch("/api/status")).json();
+    const ok = s.ready && (s.llm_ready || s.backend !== "ollama");
+    $("status").classList.toggle("ok", ok);
+    if (!controller) $("go").innerHTML = s.ready ? "Ask <kbd>↵</kbd>" : "loading…";
+    $("status-text").textContent = !s.ready ? "loading models" : ok ? `ready · ${s.model}` : `loading ${s.model}`;
+    $("foot-model").textContent = s.backend === "none" ? "no LLM – retrieval only" : `LLM: ${s.model} (${s.backend})`;
+    $("model-name").textContent = s.model;
+    if (s.stats) {
+      $("f-classes").textContent = s.stats.classes;
+      $("f-docs").textContent = s.documents;
+      $("f-chunks").textContent = s.chunks;
+      if (s.kg) $("f-kg").textContent = s.kg.dishes;
+    }
+    if (!ok) setTimeout(poll, 1500);
+  } catch (e) { setTimeout(poll, 2000); }
+}
+poll();
+
+/* ?q=... in the URL asks the question right away (handy for demos) */
+const preset = new URLSearchParams(location.search).get("q");
+if (preset) {
+  $("q").value = preset;
+  (async function waitReady() {
+    const s = await (await fetch("/api/status")).json().catch(() => ({}));
+    if (s.ready) { autosize(); ask(); } else setTimeout(waitReady, 1000);
+  })();
+}
+
+/* ---------- specials ---------- */
+for (const [q, cat] of SPECIALS) {
+  const b = document.createElement("button");
+  b.className = "special"; b.type = "button";
+  b.innerHTML = `<span class="q"></span><span class="lead"></span><span class="cat"></span>`;
+  b.querySelector(".q").textContent = q;
+  b.querySelector(".cat").textContent = cat;
+  b.onclick = () => { $("q").value = q; autosize(); ask(); };
+  $("special-list").appendChild(b);
+}
+
+/* ---------- input ---------- */
+const autosize = () => { const t = $("q"); t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; };
+$("q").addEventListener("input", autosize);
+$("q").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); } });
+$("ask").addEventListener("submit", (e) => { e.preventDefault(); ask(); });
+
+/* ---------- tiny markdown ---------- */
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let ontoNums = new Set();
+function inline(s) {
+  return esc(s)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\[(\d+(?:\s*,\s*\d+)*)\]/g, (_, nums) => nums.split(",").map((n) => {
+      n = n.trim();
+      return `<button class="cite${ontoNums.has(+n) ? " onto" : ""}" data-n="${n}">${n}</button>`;
+    }).join(""));
+}
+function md(text) {
+  const out = []; let list = null;
+  for (const raw of text.split("\n")) {
+    const line = raw.trim();
+    const ul = line.match(/^[-*•]\s+(.*)/), ol = line.match(/^\d+[.)]\s+(.*)/);
+    if (ul || ol) {
+      const type = ul ? "ul" : "ol";
+      if (!list || list.type !== type) { if (list) out.push(`</${list.type}>`); out.push(`<${type}>`); list = { type }; }
+      out.push(`<li>${inline((ul || ol)[1])}</li>`);
+    } else {
+      if (list) { out.push(`</${list.type}>`); list = null; }
+      if (line) out.push(`<p>${inline(line)}</p>`);
+    }
+  }
+  if (list) out.push(`</${list.type}>`);
+  return out.join("");
+}
+$("answer").addEventListener("click", (e) => {
+  const c = e.target.closest(".cite"); if (!c) return;
+  const row = document.querySelector(`.src[data-n="${c.dataset.n}"]`); if (!row) return;
+  row.classList.add("open"); row.classList.remove("flash"); void row.offsetWidth; row.classList.add("flash");
+  row.scrollIntoView({ behavior: "smooth", block: "center" });
+});
+
+/* ---------- sources ---------- */
+function renderSources(sources) {
+  const box = $("sources"); box.innerHTML = "";
+  const pdfScores = sources.filter((s) => s.kind === "pdf").map((s) => s.score);
+  const lo = Math.min(...pdfScores), hi = Math.max(...pdfScores);
+  for (const s of sources) {
+    const row = document.createElement("div");
+    row.className = "src" + (s.kind === "ontology" ? " onto" : s.kind === "kg" ? " kgsrc" : "");
+    row.dataset.n = s.n;
+    const fixed = s.kind !== "pdf";
+    const pct = fixed ? 100 : hi > lo ? 15 + 85 * (s.score - lo) / (hi - lo) : 100;
+    const pill = s.kind === "ontology" ? '<span class="tagpill">ontology</span>'
+      : s.kind === "kg" ? '<span class="tagpill kgpill">graph</span>' : "";
+    row.innerHTML = `
+      <button type="button">
+        <span class="n">[${s.n}]</span>
+        <span class="t"><span class="tt"></span>${pill}<span class="w"></span></span>
+        <span class="s">${s.kind === "ontology" ? "fact" : s.kind === "kg" ? "exact" : s.score}<span class="bar"><span style="width:${pct}%"></span></span></span>
+      </button>
+      <div class="x"></div>`;
+    row.querySelector(".tt").textContent = s.title;
+    row.querySelector(".w").textContent = s.where;
+    row.querySelector(".x").textContent = s.text;
+    row.querySelector("button").onclick = () => row.classList.toggle("open");
+    box.appendChild(row);
+  }
+  $("src-count").textContent = `${sources.length} items`;
+}
+
+/* ---------- knowledge graph ---------- */
+const money = (p, c) => p == null ? "" : ({ GBP: "£", USD: "$", EUR: "€" }[c] || "") + Number(p).toFixed(2);
+function renderKG(kg) {
+  const card = $("kg-card");
+  if (!kg) { card.hidden = true; return; }
+  card.hidden = false;
+  const n = kg.dishes.length, more = n > 40;
+  const parts = [];
+  if (kg.places.length) parts.push(`<b>${kg.places.length}</b> dining place${kg.places.length > 1 ? "s" : ""}`);
+  if (kg.menus.length) parts.push(`<b>${kg.menus.length}</b> menu${kg.menus.length > 1 ? "s" : ""}`);
+  if (n || !parts.length) parts.push(`<b>${more ? "40+" : n}</b> dish${n === 1 ? "" : "es"}`);
+  $("kg-title").innerHTML = "Exact answer from the graph: " + parts.join(", ");
+  const conds = $("kg-conds"); conds.innerHTML = "";
+  for (const c of kg.constraints) { const s = document.createElement("span"); s.className = "chip cond"; s.textContent = c; conds.appendChild(s); }
+  const extra = $("kg-extra"); extra.innerHTML = "";
+  for (const p of kg.places) {
+    const d = document.createElement("div"); d.className = "kgline";
+    d.innerHTML = "<b></b><small></small>";
+    d.querySelector("b").textContent = `${p.name} — up to ${p.capacity} guests`;
+    d.querySelector("small").textContent = `min. spend ${money(p.minimumSpend, p.currency)} · deposit ${money(p.deposit, p.currency)} · ${p.layouts} · ${p.source} p.${p.page}`;
+    extra.appendChild(d);
+  }
+  for (const m of kg.menus) {
+    const d = document.createElement("div"); d.className = "kgline";
+    d.innerHTML = "<b></b><small></small>";
+    d.querySelector("b").textContent = `${m.menuName} — ${money(m.price, m.currency) || "priced per dish"}`;
+    d.querySelector("small").textContent = `${m.restaurant} · ${m.items} items · ${m.source} p.${m.page}`;
+    extra.appendChild(d);
+  }
+  const t = $("kg-table"); t.innerHTML = "";
+  if (n) {
+    t.innerHTML = "<thead><tr><th>Dish</th><th>Class</th><th>Diets</th><th style='text-align:right'>Price</th></tr></thead><tbody></tbody>";
+    const tb = t.querySelector("tbody");
+    for (const d of kg.dishes) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td class="name"><span></span><small></small></td><td></td><td></td><td class="price"></td>`;
+      tr.children[0].querySelector("span").textContent = d.name;
+      tr.children[0].querySelector("small").textContent = `${d.restaurant} · ${d.source} p.${d.page}`;
+      tr.children[1].textContent = d.typeName;
+      for (const x of (d.diets || "").split(", ").filter(Boolean)) {
+        const s = document.createElement("span"); s.className = "dietpill"; s.textContent = x; tr.children[2].appendChild(s);
+      }
+      tr.children[3].textContent = money(d.price, d.currency) || "–";
+      tb.appendChild(tr);
+    }
+  } else if (!kg.menus.length && !kg.places.length) {
+    t.innerHTML = '<tr><td class="kgempty">No dish in the graph satisfies all conditions.</td></tr>';
+  }
+  $("kg-sparql").textContent = kg.queries.join("\n\n# ---------------------------------------------\n\n");
+}
+
+/* ---------- graph ---------- */
+let lastGraph = null, fullNet = null, fullData = null;
+function drawGraph(el, g, big = false) {
+  el.innerHTML = "";
+  const ink = css("--ink"), muted = css("--muted"), card = css("--card"), rule = css("--rule");
+  const nodes = g.nodes.map((n) => ({
+    id: n.id, label: n.label, shape: "box", margin: { top: 6, bottom: 6, left: 9, right: 9 },
+    font: { face: "DM Sans", size: n.hit ? 15 : 13, color: ink, bold: n.hit },
+    color: n.hit ? { background: css("--mustard-soft"), border: css("--mustard") }
+      : n.kind === "individual" ? { background: css("--olive-soft"), border: css("--olive") }
+      : { background: card, border: rule },
+    borderWidth: n.hit ? 2 : 1, shapeProperties: { borderRadius: n.kind === "individual" ? 0 : 12 },
+  }));
+  const colorOf = { isa: muted, restriction: css("--accent"), definition: css("--accent"), property: css("--olive"), instance: css("--olive"), assertion: css("--olive") };
+  const edges = g.edges.map((e) => ({
+    from: e.from, to: e.to, label: e.kind === "isa" ? "" : e.label, arrows: { to: { enabled: true, scaleFactor: .5 } },
+    dashes: e.kind === "isa", color: { color: colorOf[e.kind], opacity: .85 }, width: e.kind === "isa" ? 1 : 1.4,
+    font: { face: "JetBrains Mono", size: 9, color: muted, strokeWidth: 3, strokeColor: card, align: "middle" },
+    smooth: { type: "continuous" },
+  }));
+  const net = new vis.Network(el, { nodes, edges }, {
+    physics: { solver: "forceAtlas2Based", forceAtlas2Based: { gravitationalConstant: big ? -70 : -55, springLength: big ? 120 : 95 }, stabilization: { iterations: 250 } },
+    interaction: { hover: true, zoomView: true, dragView: true },
+  });
+  net.once("stabilizationIterationsDone", () => { net.setOptions({ physics: false }); net.fit({ animation: { duration: 400 } }); });
+  return net;
+}
+async function drawFull() {
+  if (!fullData) fullData = await (await fetch("/api/graph")).json();
+  fullNet = drawGraph($("graph-full"), fullData, true);
+}
+$("open-full").onclick = () => { $("overlay").classList.add("open"); drawFull(); };
+$("close-full").onclick = () => $("overlay").classList.remove("open");
+$("overlay").onclick = (e) => { if (e.target === $("overlay")) $("overlay").classList.remove("open"); };
+addEventListener("keydown", (e) => { if (e.key === "Escape") $("overlay").classList.remove("open"); });
+
+function renderConcepts(concepts, terms) {
+  const c = $("concepts"), t = $("terms");
+  c.innerHTML = ""; t.innerHTML = "";
+  if (!concepts.length) { c.innerHTML = '<span class="none">No ontology concept found in this question.</span>'; }
+  for (const x of concepts) { const s = document.createElement("span"); s.className = "chip"; s.textContent = x; c.appendChild(s); }
+  for (const x of terms) { const s = document.createElement("span"); s.className = "chip term"; s.textContent = "+ " + x; t.appendChild(s); }
+}
+
+/* ---------- ask ---------- */
+let controller = null;
+function setStep(id, state, ms) {
+  const el = $(id); el.classList.remove("run", "done"); if (state) el.classList.add(state);
+  const b = el.querySelector("b"); if (b && ms !== undefined) b.textContent = ms;
+}
+async function ask() {
+  const question = $("q").value.trim(); if (!question) return;
+  if (controller) controller.abort();
+  controller = new AbortController();
+  $("specials").hidden = true;
+  $("answer-card").hidden = false;
+  $("sources-card").hidden = true;
+  $("kg-card").hidden = true;
+  $("go").disabled = true;
+  const ans = $("answer");
+  ans.innerHTML = '<p class="placeholder">Looking through the documents and the ontology…</p>';
+  ans.classList.remove("writing");
+  setStep("st-retrieve", "run", ""); setStep("st-write", null, "");
+  const t0 = performance.now();
+  let text = "", tick = null;
+  try {
+    const res = await fetch("/api/ask", {
+      method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
+      body: JSON.stringify({ question, use_ontology: $("use-onto").checked, rerank: $("use-rerank").checked,
+                             use_kg: $("use-kg").checked }),
+    });
+    const reader = res.body.getReader(), dec = new TextDecoder();
+    let buf = "";
+    while (true) {
+      // watchdog: never spin forever if the server or the model stops responding
+      let timer;
+      const stall = new Promise((_, rej) => { timer = setTimeout(() => rej(new Error("stall")), 180000); });
+      let chunk;
+      try { chunk = await Promise.race([reader.read(), stall]); } finally { clearTimeout(timer); }
+      const { value, done } = chunk; if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, i); buf = buf.slice(i + 1);
+        if (!line.trim()) continue;
+        const ev = JSON.parse(line);
+        if (ev.type === "retrieval") {
+          setStep("st-retrieve", "done", `${ev.ms} ms`);
+          setStep("st-write", "run", "");
+          ontoNums = new Set(ev.sources.filter((s) => s.kind !== "pdf").map((s) => s.n));
+          renderSources(ev.sources); $("sources-card").hidden = false;
+          renderKG(ev.kg);
+          renderConcepts(ev.concepts, ev.terms);
+          lastGraph = ev.graph;
+          if (ev.graph) drawGraph($("graph"), ev.graph);
+          else $("graph").innerHTML = '<div class="empty">No ontology concepts<br>for this question.</div>';
+          ans.innerHTML = '<p class="placeholder">The model is reading the sources…</p>';
+          const tw = performance.now();
+          tick = setInterval(() => setStep("st-write", "run", `${((performance.now() - tw) / 1000).toFixed(0)} s`), 500);
+        } else if (ev.type === "token") {
+          text += ev.text; ans.classList.add("writing"); ans.innerHTML = md(text);
+        } else if (ev.type === "status") {
+          ans.innerHTML = '<p class="placeholder"></p>'; ans.querySelector(".placeholder").textContent = ev.text;
+        } else if (ev.type === "error") {
+          ans.innerHTML = `<p class="err"></p>`; ans.querySelector(".err").textContent = ev.text;
+          setStep("st-retrieve", null, ""); setStep("st-write", null, "");
+        } else if (ev.type === "done") {
+          clearInterval(tick);
+          setStep("st-write", "done", `${(ev.ms / 1000).toFixed(1)} s`);
+        }
+      }
+    }
+  } catch (e) {
+    if (e.name !== "AbortError") {
+      controller.abort();
+      const msg = e.message === "stall"
+        ? "No response for 3 minutes. Check that Ollama is running (icon in the tray) and the black server window is open, then ask again."
+        : "Connection error – is the server window (run_app.bat) still open? " + e.message;
+      ans.innerHTML = '<p class="err"></p>'; ans.querySelector(".err").textContent = msg;
+      setStep("st-retrieve", null, ""); setStep("st-write", null, "");
+    }
+  } finally {
+    $("go").innerHTML = "Ask <kbd>↵</kbd>";
+    clearInterval(tick);
+    ans.classList.remove("writing");
+    $("go").disabled = false;
+  }
+}
+</script>
+</body>
+</html>
